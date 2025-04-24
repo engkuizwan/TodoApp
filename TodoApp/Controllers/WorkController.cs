@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TodoApp.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using TodoApp.Model;
+using TodoApp.Services;
 
 namespace TodoApp.Controllers
 {
@@ -10,80 +8,65 @@ namespace TodoApp.Controllers
     [ApiController]
     public class WorkController : ControllerBase
     {
-        private readonly AppDbContext appDbContext;
-        public WorkController(AppDbContext appDbContext)
+        private readonly IWorkService _workService;
+
+        public WorkController(IWorkService workService)
         {
-            this.appDbContext = appDbContext;
+            _workService = workService;
         }
 
-        //create work
-        //[HttpPost("addWork")]
         [HttpPost]
-        public async Task<ActionResult<Work>> addWork(Work newWork)
+        public async Task<IActionResult> AddWork(Work work)
         {
-            if (newWork != null)
-            {
-                appDbContext.Works.Add(newWork);
-                await appDbContext.SaveChangesAsync();
-                return Ok("New work inserted");
+            if (work == null)
+                return BadRequest("Work data cannot be null.");
 
-            }
-            return BadRequest("Data request cannot Null");
+            await _workService.AddWorkAsync(work);
+                return Ok("New work inserted successfully.");
         }
 
-        //get all works
         [HttpGet]
-        //[HttpGet("GetAllWork")]
-        public async Task<ActionResult<List<Work>>> GetAllWorks()
+        public async Task<IActionResult> GetAllWorks()
         {
-            var works = await appDbContext.Works.ToListAsync();
+            var works = await _workService.GetAllWorksAsync();
             return Ok(works);
         }
 
-        //get work by id
-        [HttpGet("{id:int}")]
-        //[HttpGet("getWorkbyId/{id:int}")]
-        public async Task<ActionResult<Work>> GetWorkbyId(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetWorkById(int id)
         {
-            var work = await appDbContext.Works.SingleOrDefaultAsync(e => e.id ==id);
-            if(User != null)return Ok(work);
-            return NotFound("Work not exist");
+            var work = await _workService.GetWorkByIdAsync(id);
+
+            if (work == null)
+                return NotFound("Work not found.");
+
+            return Ok(work);
         }
 
         [HttpPut]
-        //[HttpPut("updateWork")]
-        public async Task<ActionResult<Work>> UpdateWork(Work updatedwork)
+        public async Task<IActionResult> UpdateWork(Work updatedWork)
         {
-                var work = await appDbContext.Works.FirstOrDefaultAsync(e => e.id == updatedwork.id);
-            if(updatedwork != null)
-            {
-                if(work != null)
-                {
-                    work.name = updatedwork.name;
-                    work.description = updatedwork.description;
-                    work.status = updatedwork.status;
-                    await appDbContext.SaveChangesAsync();
-                    return Ok("Data Updated");
-                }
-                return NotFound("Work not exist");
-            }
-            return BadRequest("Data request cannot null");
-        }
+            if (updatedWork == null)
+                return BadRequest("Work data cannot be null.");
 
-        [HttpDelete]
-        public async Task<ActionResult<List<Work>>> DeleteWork(int id)
-        {
-            var work = await appDbContext.Works.FirstOrDefaultAsync(e => e.id == id);
+            var result = await _workService.UpdateWorkAsync(updatedWork);
 
-            if (work != null)
-            {
-                appDbContext.Works.Remove(work);
-                await appDbContext.SaveChangesAsync();
-                return Ok(await appDbContext.Works.ToListAsync());
-            }
-            return NotFound("Work not exist");
+            if (result)
+                return Ok("Work updated successfully.");
+            else
+                return NotFound("Work not found.");
         }
 
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteWork(int id)
+        {
+            var result = await _workService.DeleteWorkAsync(id);
+
+            if (result)
+                return Ok("Work deleted successfully.");
+            else
+                return NotFound("Work not found.");
+        }
     }
 }

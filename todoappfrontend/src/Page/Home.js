@@ -90,7 +90,7 @@ export default function Home(props) {
 
   const handleDelete = (id) => {
       axios
-      .delete(`http://localhost:5031/Work?id=`+id)
+      .delete(`http://localhost:5031/Work/`+id)
       .then((response) => {
         getallWork();
       })
