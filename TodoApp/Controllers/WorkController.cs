@@ -17,9 +17,9 @@ namespace TodoApp.Controllers
         }
 
         //create work
-        [HttpPost]
         //[HttpPost("addWork")]
-        public async Task<ActionResult<List<Work>>> addWork(Work newWork)
+        [HttpPost]
+        public async Task<ActionResult<Work>> addWork(Work newWork)
         {
             if (newWork != null)
             {

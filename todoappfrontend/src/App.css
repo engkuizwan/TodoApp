@@ -1,0 +1,91 @@
+/* Global Background and Text Colors */
+body {
+  background-color: #15202b;
+  color: #e1e8ed;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h3 {
+  font-size: 2rem;
+  color: #ffffff; /* White color */
+  text-align: center;
+  margin-bottom: 1.5rem;
+  /* Ensure it's not affected by body color */
+  color: #ffffff !important; /* Force white color */
+}
+
+
+
+/* Button Styling */
+button {
+  background-color: #1da1f2;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #1991d0;
+}
+
+/* Table Styling */
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #192734; /* Soft dark background */
+}
+
+th, td {
+  padding: 15px;
+  text-align: center;
+  border: 1px solid #34495e; /* Soft border color */
+}
+
+th {
+  background-color: #2c3e50; /* Lighter dark header */
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #34495e; /* Subtle bottom border */
+}
+
+td {
+  background-color: #1f2a37; /* Dark background for rows */
+  color: #e1e8ed; /* Light text color for readability */
+  font-size: 1rem;
+}
+
+tr:hover {
+  background-color: #34495e; /* Highlight row on hover */
+  cursor: pointer;
+}
+
+tr:nth-child(even) {
+  background-color: #233240; /* Lighter row color for alternating rows */
+}
+
+/* Centered Container */
+.container {
+  max-width: 900px;
+  margin: auto;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.9rem;
+  }
+
+  th, td {
+    padding: 12px;
+  }
+}
