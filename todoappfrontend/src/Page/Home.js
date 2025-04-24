@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Modal } from "react-bootstrap"; // Bootstrap modal import
+import { Modal } from "react-bootstrap"; 
 
 export default function Home(props) {
   const [tableData, setTableData] = useState([]);
@@ -9,13 +9,14 @@ export default function Home(props) {
   const [updatedName, setUpdatedName] = useState('');
   const [updatedDescription, setUpdatedDescription] = useState('');
   const [updatedStatus, setUpdatedStatus] = useState('');
+  const [addStatus, setAddStatus] = useState(false);
 
   const getallWork = () => {
     axios
       .get("http://localhost:5031/Work")
       .then(function (resp) {
         console.log(resp);
-        setTableData(resp.data); // Assign all data here
+        setTableData(resp.data); 
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -24,42 +25,80 @@ export default function Home(props) {
   };
 
   const handleActionClick = (row) => {
-    setSelectedRow(row); // Set the selected row data
+    
+    setAddStatus(false);
+    setSelectedRow(row); 
     setUpdatedName(row.name);
     setUpdatedDescription(row.description);
-    setUpdatedStatus(row.status); // Set the status to the current value of the row
-    setShowModal(true); // Show the modal
+    setUpdatedStatus(row.status);
+    setShowModal(true);
   };
+
+  const handleAddClick = () => {
+
+    setAddStatus(true);
+    setShowModal(true);
+    setSelectedRow(null);
+    setUpdatedName('');
+    setUpdatedDescription('');
+    setUpdatedStatus('');
+
+  }
 
   const handleCloseModal = () => {
-    setShowModal(false); // Close the modal
+    setShowModal(false); 
   };
 
-  const handleUpdate = () => {
-    // Create the updated data object based on the modal form values
-    const updatedData = {
-      id: selectedRow.id,
-      name: updatedName,
-      description: updatedDescription,
-      status: updatedStatus,
-    };
-  
-    // Send PUT request to update the work record in the database
-    axios
-      .put(`http://localhost:5031/Work`, updatedData)
+  const handleSubmit = () => {
+
+    if(addStatus === true){      
+        const updatedData = {
+          name: updatedName,
+          description: updatedDescription,
+          status: updatedStatus,
+        };
+        axios
+          .post(`http://localhost:5031/Work`, updatedData)
+          .then((response) => {
+            getallWork();
+            setShowModal(false); 
+          })
+          .catch((error) => {
+            console.error("Error Add Task:", error);
+            alert("Error Add Task: " + error.message);
+          });
+
+    }else{
+        const updatedData = {
+          id: selectedRow.id,
+          name: updatedName,
+          description: updatedDescription,
+          status: updatedStatus,
+        };
+        axios
+          .put(`http://localhost:5031/Work`, updatedData)
+          .then((response) => {
+            getallWork();
+            setShowModal(false); 
+          })
+          .catch((error) => {
+            console.error("Error updating task:", error);
+            alert("Error updating task: " + error.message);
+          });
+    }
+  };
+
+  const handleDelete = (id) => {
+      axios
+      .delete(`http://localhost:5031/Work?id=`+id)
       .then((response) => {
-        // Successfully updated, now update local state with new data
-        const updatedTableData = tableData.map((item) =>
-          item.id === selectedRow.id ? response.data : item
-        );
         getallWork();
-        setShowModal(false); // Close the modal after successful update
       })
       .catch((error) => {
-        console.error("Error updating data:", error);
-        alert("Error updating data: " + error.message);
+        console.error("Error Add Task:", error);
+        alert("Error Add Task: " + error.message);
       });
-  };
+  }
   
 
   useEffect(() => {
@@ -72,6 +111,11 @@ export default function Home(props) {
         <div className="row justify-content-center">
           <div className="col-md-8">
             <h3 className="text-center mb-4">Todo List</h3>
+            <div className="mb-3 text-end">
+              <button className="btn btn-success" onClick={handleAddClick}>
+                <i className="fas fa-plus"></i> 
+              </button>
+            </div>
             <table className="table table-striped table-bordered text-center">
               <thead className="thead-dark">
                 <tr>
@@ -98,11 +142,20 @@ export default function Home(props) {
                       )}
                     </td>
                     <td>
+                      {/* edit button */}
                       <button
                         className="btn btn-info"
                         onClick={() => handleActionClick(user)} // Trigger modal on button click
                       >
                         <i className="fas fa-cogs"></i> {/* Settings Icon */}
+                      </button>
+
+                      {/* delete button */}
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => handleDelete(user.id)} // Trigger modal on button click
+                      >
+                        <i className="fas fa-trash"></i> {/* Settings Icon */}
                       </button>
                     </td>
                   </tr>
@@ -116,7 +169,7 @@ export default function Home(props) {
       {/* Modal for the selected row */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Update Information for {selectedRow?.name}</Modal.Title>
+          <Modal.Title>{addStatus? 'Add Task':'Update Task'} </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form>
@@ -164,8 +217,8 @@ export default function Home(props) {
           <button className="btn btn-secondary" onClick={handleCloseModal}>
             Close
           </button>
-          <button className="btn btn-primary" onClick={handleUpdate}>
-            Update
+          <button className="btn btn-primary" onClick={handleSubmit}>
+            {addStatus?"Save":"Update"}
           </button>
         </Modal.Footer>
       </Modal>
