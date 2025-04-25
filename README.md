@@ -1,6 +1,6 @@
 To start frontend:
 
-cd todoappfrontend
+cd todoappfrontend | 
 npm install | 
 npm run start
 
